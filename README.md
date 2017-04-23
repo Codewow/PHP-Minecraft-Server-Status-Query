@@ -32,7 +32,8 @@ If the server is offline MinecraftServerStatus::query returns false else it retu
 
 Quick fix for "Catchable fatal error: Object of class stdClass could not be converted to string on line XX"
 
-```Convert whichever variable is returning the error into a string by appending ->text; to it.
+```
+Convert whichever variable is returning the error into a string by appending ->text; to it.
 
 Example: echo $response['description_raw']->text;
 
