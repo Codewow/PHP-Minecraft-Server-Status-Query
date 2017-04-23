@@ -30,6 +30,14 @@ if (! $response) {
 ```
 If the server is offline MinecraftServerStatus::query returns false else it returns an array which contains the server informations.
 
+Quick fix for "Catchable fatal error: Object of class stdClass could not be converted to string on line XX"
+
+Convert whichever variable is returning the error into a string by appending ->text; to it.
+
+Example: echo $response['description_raw']->text;
+
+That should echo out the entire string version of the variable.
+
 ###Variables
 The following table contains the available variables the response can contain. The default value of each variable is false.
 
