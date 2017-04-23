@@ -22,8 +22,10 @@ class MinecraftServerStatus {
     public static function query ($host = '127.0.0.1', $port = 25565) {
         // check if the host is in ipv4 format
         $host = filter_var($host, FILTER_VALIDATE_IP) ? $host : gethostbyname($host);
-        
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        // set a timeout so that offline status is returned more quickly
+        socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 1, 'usec' => 0));
+        socket_set_option($socket, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
         if (! @socket_connect($socket, $host, $port)) {
             return false;
         }
@@ -49,20 +51,12 @@ class MinecraftServerStatus {
         $description = $descriptionRaw;
         
         // colorize the description if it is supported
-        if (gettype($descriptionRaw) == 'object') {
+        if (gettype($descriptionRaw) == 'object' && isset($descriptionRaw->extra)) {
             $description = '';
-            
-            if (isset($descriptionRaw->text)) {
-                $color = isset($descriptionRaw->color) ? $descriptionRaw->color : '';
-                $description = '<font color="' . $color . '">' . $descriptionRaw->text . '</font>';
-            }
-            
-            if (isset($descriptionRaw->extra)) {
-                foreach ($descriptionRaw->extra as $item) {
-                    $description .= isset($item->bold) && $item->bold ? '<b>' : '';
-                    $description .= isset($item->color) ? '<font color="' . $item->color . '">' . $item->text . '</font>' : '';
-                    $description .= isset($item->bold) && $item->bold ? '</b>' : '';
-                }
+            foreach ($descriptionRaw->extra as $item) {
+                $description .= isset($item->bold) && $item->bold ? '<b>' : '';
+                $description .= '<font color="' . $item->color . '">' . $item->text . '</font>';
+                $description .= isset($item->bold) && $item->bold ? '</b>' : '';
             }
         }
         
